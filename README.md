@@ -4,7 +4,7 @@ Frontend público de **Burger House** para clientes. Catálogo, carrito con pers
 
 ## 🎥 Video de Presentación
 
-**Link del video:** _[PENDIENTE — agregar link de YouTube cuando esté subido]_
+**Link del video:** _[https://youtu.be/YCxig3wu1N4?feature=shared]_
 
 ---
 
