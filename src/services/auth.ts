@@ -36,9 +36,13 @@ export async function register(data: RegisterRequest): Promise<UserResponse> {
   return resp.data;
 }
 
-export async function getMe(): Promise<UserResponse> {
-  const resp = await apiClient.get<UserResponse>('/auth/me');
-  return resp.data;
+export async function getMe(): Promise<UserResponse | null> {
+  try {
+    const resp = await apiClient.get<UserResponse>('/auth/me');
+    return resp.data;
+  } catch {
+    return null; // 401 = no hay sesión, no es un error real
+  }
 }
 
 export async function logout(): Promise<void> {

@@ -104,8 +104,8 @@ export default function DetalleProducto() {
                 <div className="flex flex-wrap gap-2">
                   {producto.ingredientes?.length > 0 ? (
                     producto.ingredientes.map((ing) => (
-                      <span key={ing.id} className="badge badge-green">
-                        {ing.nombre} {ing.precio_adicional > 0 && `(+$${ing.precio_adicional})`}
+                      <span key={ing.id} className={`badge ${ing.alergeno ? 'badge-amber' : 'badge-green'}`}>
+                        {ing.alergeno && '⚠️ '}{ing.nombre} {ing.precio_adicional > 0 && `(+$${ing.precio_adicional})`}
                       </span>
                     ))
                   ) : (
