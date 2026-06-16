@@ -49,6 +49,7 @@ export default function Catalogo() {
       producto_id: prod.id,
       nombre: prod.nombre,
       precio_base: prod.precio_base,
+      precio_final: prod.precio_base,
       imagen_url: prod.imagenes_url,
       stock_cantidad: prod.stock_cantidad,
     });

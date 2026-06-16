@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { getMisPedidos } from '../services/pedidos';
+import { useWsStore } from '../store/wsStore';
 import LoadingSpinner from '../components/ui/LoadingSpinner';
 import EmptyState from '../components/ui/EmptyState';
 import EstadoTimeline from '../components/EstadoTimeline';
@@ -10,7 +11,6 @@ const estadoColores: Record<string, string> = {
   pendiente: 'badge-yellow',
   confirmado: 'badge-blue',
   en_prep: 'badge-purple',
-  en_camino: 'badge-orange',
   entregado: 'badge-green',
   cancelado: 'badge-red',
 };
@@ -19,7 +19,6 @@ const estadoLabels: Record<string, string> = {
   pendiente: '⏳ Pendiente',
   confirmado: '✅ Confirmado',
   en_prep: '👨‍🍳 En preparación',
-  en_camino: '🚚 En camino',
   entregado: '🎉 Entregado',
   cancelado: '❌ Cancelado',
 };
@@ -31,6 +30,7 @@ export default function MisPedidos() {
   });
 
   const [timelineOpen, setTimelineOpen] = useState<Record<number, boolean>>({});
+  const wsConnected = useWsStore((s) => s.connected);
 
   if (isLoading) return <LoadingSpinner text="Cargando pedidos..." />;
 
@@ -44,6 +44,17 @@ export default function MisPedidos() {
             </span>
           </h1>
           <p className="text-gray-500 text-lg">Historial de tus pedidos</p>
+          {/* Indicador de conexión WebSocket */}
+          <p className="text-xs mt-1 flex items-center gap-1.5">
+            <span
+              className={`inline-block w-2 h-2 rounded-full ${
+                wsConnected ? 'bg-green-400 shadow-sm shadow-green-400/50' : 'bg-red-500'
+              }`}
+            />
+            <span className={wsConnected ? 'text-green-400' : 'text-red-400'}>
+              {wsConnected ? 'Tiempo real activo' : 'Sin conexión en vivo'}
+            </span>
+          </p>
         </div>
 
         {!pedidos || pedidos.length === 0 ? (
@@ -104,6 +115,9 @@ export default function MisPedidos() {
                           <span className="text-gray-300">
                             <span className="text-amber-400 font-medium">{d.cantidad}x</span>{' '}
                             {d.nombre_producto || `Producto #${d.producto_id}`}
+                            {d.variante_nombre && (
+                              <span className="text-gray-500 text-xs ml-1">({d.variante_nombre})</span>
+                            )}
                           </span>
                           <span className="text-gray-400 font-medium">
                             ${(d.precio_unitario * d.cantidad).toLocaleString()}

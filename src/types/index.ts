@@ -34,6 +34,14 @@ export interface IngredienteNested {
   alergeno?: boolean;
 }
 
+export interface Variante {
+  id: number;
+  tipo: string; // "talle" | "color"
+  valor: string;
+  precio_adicional: number;
+  stock: number;
+}
+
 export interface Producto {
   id: number;
   nombre: string;
@@ -46,6 +54,7 @@ export interface Producto {
   updated_at: string;
   categorias: CategoriaNested[];
   ingredientes: IngredienteNested[];
+  variantes: Variante[];
 }
 
 export interface Usuario {
@@ -63,6 +72,8 @@ export interface PedidoDetalle {
   cantidad: number;
   precio_unitario: number;
   nombre_producto?: string;
+  variante_id?: number;
+  variante_nombre?: string;
   notas?: string;
 }
 
@@ -70,6 +81,8 @@ export interface PedidoDetalle {
 export interface PedidoDetalleCreate {
   producto_id: number;
   cantidad: number;
+  variante_id?: number;
+  variante_nombre?: string;
   notas?: string;
 }
 
@@ -90,4 +103,101 @@ export interface PedidoCreateData {
   usuario_id: number;
   detalles: PedidoDetalleCreate[];
   notas?: string;
+}
+
+// ─── MercadoPago ───────────────────────────────────────────────
+
+export interface CreatePreferenceResponse {
+  mp_preference_id: string;
+  init_point: string;
+  idempotency_key: string;
+}
+
+// ─── Pagos ─────────────────────────────────────────────────────
+
+export interface PagoResponse {
+  id: number;
+  pedido_id: number;
+  mp_payment_id: string | null;
+  mp_status: string;
+  mp_status_detail: string | null;
+  transaction_amount: number;
+  currency_id: string;
+  payment_method: string;
+  idempotency_key: string;
+  created_at: string;
+  updated_at: string;
+}
+
+// ─── Cloudinary ────────────────────────────────────────────────
+
+export interface CloudinaryUploadResponse {
+  url: string;
+  secure_url: string;
+  public_id: string;
+  format?: string | null;
+  width?: number | null;
+  height?: number | null;
+}
+
+export interface CloudinaryDestroyResponse {
+  result: string;
+}
+
+// ─── Estadísticas ──────────────────────────────────────────────
+
+export interface EstadisticasTotales {
+  total_pedidos: number;
+  total_productos: number;
+  total_clientes: number;
+  total_ingredientes: number;
+  total_categorias: number;
+}
+
+export interface PedidoPeriodoItem {
+  fecha: string;
+  cantidad: number;
+  total: number;
+}
+
+export interface PedidosPeriodoResponse {
+  pedidos: PedidoPeriodoItem[];
+}
+
+export interface PlataformaMasVendida {
+  producto_id: number;
+  nombre: string;
+  total_vendido: number;
+}
+
+export interface TicketPromedio {
+  promedio: number;
+  total_pedidos: number;
+  ingresos_totales: number;
+}
+
+export interface RankingProductoItem {
+  producto_id: number;
+  nombre: string;
+  total_vendido: number;
+  ingresos: number;
+}
+
+export interface RankingProductosResponse {
+  ranking: RankingProductoItem[];
+}
+
+export interface PedidoPorEstadoItem {
+  estado: string;
+  cantidad: number;
+}
+
+export interface PedidosPorEstadoResponse {
+  pedidos: PedidoPorEstadoItem[];
+}
+
+export interface IngresosResponse {
+  total_ingresos: number;
+  cantidad_pedidos: number;
+  promedio: number;
 }

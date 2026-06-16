@@ -3,37 +3,63 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useCartStore } from '../store/cartStore';
 import { useAuth } from '../context/AuthContext';
 import { createPedido } from '../services/pedidos';
+import { createPreference } from '../services/mercadopago';
 import LoadingSpinner from '../components/ui/LoadingSpinner';
+
+type PaymentMethod = 'efectivo' | 'mercadopago' | null;
 
 export default function Cart() {
   const { items, removeItem, updateCantidad, clearCart, total, itemCount } = useCartStore();
   const { user, isAuthenticated } = useAuth();
   const navigate = useNavigate();
-  const [checkingOut, setCheckingOut] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
 
-  const handleCheckout = async () => {
+  const handlePlaceOrder = () => {
     if (!isAuthenticated || !user) {
       navigate('/login');
       return;
     }
+    // Mostrar modal de selección de pago
+    setShowPaymentModal(true);
+  };
 
-    setCheckingOut(true);
+  const handlePayment = async (method: PaymentMethod) => {
+    if (!user) return;
+    setShowPaymentModal(false);
+    setLoading(true);
     setError('');
+
     try {
-      await createPedido({
+      const pedido = await createPedido({
         usuario_id: user.id,
         detalles: items.map((i) => ({
           producto_id: i.producto_id,
           cantidad: i.cantidad,
+          variante_id: i.variante_id,
+          variante_nombre: i.variante_nombre,
         })),
       });
-      clearCart();
-      navigate('/mis-pedidos');
+
+      if (method === 'mercadopago') {
+        const baseUrl = `${location.protocol}//${location.host}`;
+        const pref = await createPreference(pedido.id, {
+          success: `${baseUrl}/pago/exito?pedido_id=${pedido.id}`,
+          failure: `${baseUrl}/pago/fallo?pedido_id=${pedido.id}`,
+          pending: `${baseUrl}/pago/fallo?pedido_id=${pedido.id}`,
+        });
+        clearCart();
+        window.location.href = pref.init_point;
+      } else {
+        // Efectivo: pedido creado, ir a mis pedidos
+        clearCart();
+        navigate('/mis-pedidos');
+      }
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Error al crear pedido');
+      setError(err instanceof Error ? err.message : 'Error al procesar pedido');
     } finally {
-      setCheckingOut(false);
+      setLoading(false);
     }
   };
 
@@ -65,10 +91,7 @@ export default function Cart() {
             </h1>
             <p className="text-gray-500">{itemCount()} producto(s) en tu carrito</p>
           </div>
-          <button
-            onClick={clearCart}
-            className="btn-secondary text-sm"
-          >
+          <button onClick={clearCart} className="btn-secondary text-sm">
             Vaciar carrito
           </button>
         </div>
@@ -83,7 +106,7 @@ export default function Cart() {
         <div className="space-y-4 stagger">
           {items.map((item) => (
             <div
-              key={item.producto_id}
+              key={item.cart_key}
               className="card p-4 md:p-6 flex items-center gap-4 md:gap-6"
             >
               {item.imagen_url ? (
@@ -98,14 +121,17 @@ export default function Cart() {
                 <Link to={`/productos/${item.producto_id}`} className="font-semibold text-white hover:text-amber-400 transition-colors">
                   {item.nombre}
                 </Link>
+                {item.variante_nombre && (
+                  <p className="text-xs text-gray-400 mt-0.5">{item.variante_nombre}</p>
+                )}
                 <p className="text-amber-400 font-bold mt-1">
-                  ${(item.precio_base * item.cantidad).toLocaleString()}
+                  ${(item.precio_final * item.cantidad).toLocaleString()}
                 </p>
               </div>
 
               <div className="flex items-center gap-2">
                 <button
-                  onClick={() => updateCantidad(item.producto_id, item.cantidad - 1)}
+                  onClick={() => updateCantidad(item.cart_key, item.cantidad - 1)}
                   disabled={item.cantidad <= 1}
                   className="w-8 h-8 rounded-lg bg-white/5 hover:bg-white/10 disabled:opacity-30 font-bold text-white transition cursor-pointer disabled:cursor-not-allowed"
                 >
@@ -113,7 +139,7 @@ export default function Cart() {
                 </button>
                 <span className="w-8 text-center font-semibold text-white">{item.cantidad}</span>
                 <button
-                  onClick={() => updateCantidad(item.producto_id, item.cantidad + 1)}
+                  onClick={() => updateCantidad(item.cart_key, item.cantidad + 1)}
                   disabled={item.cantidad >= item.stock_cantidad}
                   className="w-8 h-8 rounded-lg bg-white/5 hover:bg-white/10 disabled:opacity-30 font-bold text-white transition cursor-pointer disabled:cursor-not-allowed"
                 >
@@ -122,7 +148,7 @@ export default function Cart() {
               </div>
 
               <button
-                onClick={() => removeItem(item.producto_id)}
+                onClick={() => removeItem(item.cart_key)}
                 className="text-gray-500 hover:text-red-400 text-xl transition cursor-pointer flex-shrink-0"
               >
                 ✕
@@ -140,18 +166,55 @@ export default function Cart() {
             </span>
           </div>
           <button
-            onClick={handleCheckout}
-            disabled={checkingOut || items.length === 0}
+            onClick={handlePlaceOrder}
+            disabled={loading || items.length === 0}
             className="w-full btn-primary justify-center text-lg py-4 disabled:opacity-50"
           >
-            {checkingOut
-              ? 'Creando pedido... ⌛'
+            {loading
+              ? 'Procesando... ⌛'
               : isAuthenticated
                 ? 'Realizar Pedido 🚀'
                 : 'Iniciar sesión para comprar'}
           </button>
         </div>
       </div>
+
+      {/* Modal de selección de pago */}
+      {showPaymentModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm" onClick={() => setShowPaymentModal(false)}>
+          <div
+            className="card p-8 max-w-sm w-full mx-4 animate-fadeInUp"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h3 className="text-2xl font-bold text-white mb-2 text-center">
+              Elegí el método de pago
+            </h3>
+            <p className="text-gray-400 text-center mb-6">
+              Total a pagar: <span className="text-amber-400 font-bold text-xl">${total().toLocaleString()}</span>
+            </p>
+            <div className="flex flex-col gap-3">
+              <button
+                onClick={() => handlePayment('efectivo')}
+                className="btn-primary justify-center text-lg py-4"
+              >
+                💵 Efectivo
+              </button>
+              <button
+                onClick={() => handlePayment('mercadopago')}
+                className="btn-secondary justify-center text-lg py-4"
+              >
+                💳 MercadoPago
+              </button>
+              <button
+                onClick={() => setShowPaymentModal(false)}
+                className="text-gray-500 hover:text-white text-sm mt-2 transition-colors"
+              >
+                Cancelar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

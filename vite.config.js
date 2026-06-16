@@ -4,35 +4,26 @@ import tailwindcss from '@tailwindcss/vite'
 
 export default defineConfig({
   plugins: [react(), tailwindcss()],
+  resolve: {
+    alias: [
+      // es-toolkit/compat es un reemplazo drop-in de lodash
+      // pero su CJS interno no se lleva bien con esbuild.
+      // Redirigimos a lodash-es que es ESM nativo.
+      {
+        find: /^es-toolkit\/compat\/(.+)$/,
+        replacement: 'lodash-es/$1',
+      },
+    ],
+  },
   server: {
     proxy: {
-      '/auth': {
+      '/api': {
         target: 'http://localhost:8000',
         changeOrigin: true,
       },
-      '/categorias': {
-        target: 'http://localhost:8000',
-        changeOrigin: true,
-      },
-      '/ingredientes': {
-        target: 'http://localhost:8000',
-        changeOrigin: true,
-      },
-      '/productos': {
-        target: 'http://localhost:8000',
-        changeOrigin: true,
-      },
-      '/usuarios': {
-        target: 'http://localhost:8000',
-        changeOrigin: true,
-      },
-      '/pedidos': {
-        target: 'http://localhost:8000',
-        changeOrigin: true,
-      },
-      '/direcciones': {
-        target: 'http://localhost:8000',
-        changeOrigin: true,
+      '/ws': {
+        target: 'ws://localhost:8000',
+        ws: true,
       },
     },
   },

@@ -89,34 +89,6 @@ export default function Navbar() {
               </Link>
             )}
 
-            {/* Admin */}
-            {isAuthenticated && user?.rol?.toUpperCase() === 'ADMIN' && (
-              <Link
-                to="/admin"
-                className={`px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 whitespace-nowrap ${
-                  isActive('/admin')
-                    ? 'bg-amber-500/15 text-amber-400'
-                    : 'text-gray-300 hover:text-white hover:bg-white/5'
-                }`}
-              >
-                Admin
-              </Link>
-            )}
-
-            {/* Employee Panel */}
-            {isAuthenticated && ['PEDIDOS', 'STOCK'].includes(user?.rol?.toUpperCase() ?? '') && (
-              <Link
-                to="/empleado"
-                className={`px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 whitespace-nowrap ${
-                  isActive('/empleado')
-                    ? 'bg-amber-500/15 text-amber-400'
-                    : 'text-gray-300 hover:text-white hover:bg-white/5'
-                }`}
-              >
-                Panel
-              </Link>
-            )}
-
             {/* Auth */}
             <div className="ml-4 pl-4 border-l border-white/10 flex items-center gap-3">
               {isAuthenticated && user ? (
@@ -160,7 +132,7 @@ export default function Navbar() {
             </Link>
             {isAuthenticated && user ? (
               <div className="flex items-center gap-2">
-                <Link to={user.rol === 'ADMIN' ? '/admin' : '/empleado'} className="text-gray-300 text-sm p-2 hover:text-white">
+                <Link to="/mis-pedidos" className="text-gray-300 text-sm p-2 hover:text-white">
                   🧑‍💼
                 </Link>
                 <button onClick={logout} className="text-gray-400 text-sm p-2 hover:text-amber-400 cursor-pointer">
