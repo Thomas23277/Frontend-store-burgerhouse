@@ -10,6 +10,9 @@ export default function StoreHome() {
     queryFn: getCategorias,
   });
 
+  // Aplanar: raíces + subcategorías en un solo nivel para las tarjetas
+  const flatCategorias = categorias?.flatMap(cat => [cat, ...(cat.subcategorias ?? [])]) ?? [];
+
   const { data: destacados, isLoading: destLoading } = useQuery({
     queryKey: ['productos-destacados'],
     queryFn: () => getProductosDestacados(6),
@@ -69,7 +72,7 @@ export default function StoreHome() {
       {/* ════════════════════════════════════════
           CATEGORÍAS
           ════════════════════════════════════════ */}
-      {categorias && categorias.length > 0 && (
+      {flatCategorias.length > 0 && (
         <section className="px-4 md:px-6 lg:px-8 py-20 stagger">
           <div className="text-center mb-12 animate-fadeInUp">
             <h2 className="text-3xl md:text-4xl font-bold mb-3">
@@ -84,7 +87,7 @@ export default function StoreHome() {
             <LoadingSpinner text="Cargando categorías..." />
           ) : (
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
-              {categorias.map((cat) => (
+              {flatCategorias.map((cat) => (
                 <Link
                   key={cat.id}
                   to={`/catalogo?categoria_id=${cat.id}`}

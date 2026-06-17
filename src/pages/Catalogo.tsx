@@ -27,15 +27,18 @@ export default function Catalogo() {
       }),
   });
 
-  // Filtro adicional por stock cuando "Solo disponibles" está activado
-  const productosFiltrados = showDisponible
-    ? productos?.filter((p) => p.stock_cantidad > 0)
-    : productos;
-
   const { data: categorias } = useQuery({
     queryKey: ['categorias'],
     queryFn: getCategorias,
   });
+
+  // Aplanar: raíces + subcategorías en un solo nivel para los filtros
+  const flatCategorias = categorias?.flatMap(cat => [cat, ...(cat.subcategorias ?? [])]) ?? [];
+
+  // Filtro adicional por stock cuando "Solo disponibles" está activado
+  const productosFiltrados = showDisponible
+    ? productos?.filter((p) => p.stock_cantidad > 0)
+    : productos;
 
   useEffect(() => {
     const params: Record<string, string> = {};
@@ -98,7 +101,7 @@ export default function Catalogo() {
         </div>
 
         {/* Category cards */}
-        {categorias && categorias.length > 0 && (
+        {flatCategorias.length > 0 && (
           <div className="card p-5 mb-10 animate-fadeInUp">
             <div className="flex gap-5 overflow-x-auto pb-1">
               <button
@@ -116,7 +119,7 @@ export default function Catalogo() {
                   <span className="text-white font-bold text-sm">Todas</span>
                 </div>
               </button>
-              {categorias.map((cat) => (
+              {flatCategorias.map((cat) => (
                 <button
                   key={cat.id}
                   onClick={() => setSelectedCat(cat.id === selectedCat ? null : cat.id)}

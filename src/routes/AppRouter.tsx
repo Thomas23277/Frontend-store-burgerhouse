@@ -7,6 +7,7 @@ import Login from '../pages/Login';
 import Register from '../pages/Register';
 import Cart from '../pages/Cart';
 import MisPedidos from '../pages/MisPedidos';
+import MisDirecciones from '../pages/MisDirecciones';
 import DetalleProducto from '../pages/DetalleProducto';
 import PagoExitoso from '../pages/PagoExitoso';
 import PagoFallido from '../pages/PagoFallido';
@@ -33,6 +34,14 @@ export default function AppRouter() {
             element={
               <ProtectedRoute requireAuth>
                 <MisPedidos />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/mis-direcciones"
+            element={
+              <ProtectedRoute requireAuth>
+                <MisDirecciones />
               </ProtectedRoute>
             }
           />

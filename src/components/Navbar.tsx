@@ -88,6 +88,18 @@ export default function Navbar() {
                 Mis Pedidos
               </Link>
             )}
+            {isAuthenticated && (
+              <Link
+                to="/mis-direcciones"
+                className={`px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 whitespace-nowrap ${
+                  isActive('/mis-direcciones')
+                    ? 'bg-amber-500/15 text-amber-400'
+                    : 'text-gray-300 hover:text-white hover:bg-white/5'
+                }`}
+              >
+                📍 Direcciones
+              </Link>
+            )}
 
             {/* Auth */}
             <div className="ml-4 pl-4 border-l border-white/10 flex items-center gap-3">
@@ -132,8 +144,11 @@ export default function Navbar() {
             </Link>
             {isAuthenticated && user ? (
               <div className="flex items-center gap-2">
-                <Link to="/mis-pedidos" className="text-gray-300 text-sm p-2 hover:text-white">
+                <Link to="/mis-pedidos" className="text-gray-300 text-sm p-2 hover:text-white" title="Mis Pedidos">
                   🧑‍💼
+                </Link>
+                <Link to="/mis-direcciones" className="text-gray-300 text-sm p-2 hover:text-white" title="Direcciones">
+                  📍
                 </Link>
                 <button onClick={logout} className="text-gray-400 text-sm p-2 hover:text-amber-400 cursor-pointer">
                   ✕
