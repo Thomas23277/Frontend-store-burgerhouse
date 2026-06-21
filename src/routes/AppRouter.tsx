@@ -1,17 +1,17 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Layout from '../components/Layout';
 import ProtectedRoute from '../components/ProtectedRoute';
-import StoreHome from '../pages/StoreHome';
-import Catalogo from '../pages/Catalogo';
-import Login from '../pages/Login';
-import Register from '../pages/Register';
-import Cart from '../pages/Cart';
-import MisPedidos from '../pages/MisPedidos';
-import MisDirecciones from '../pages/MisDirecciones';
-import DetalleProducto from '../pages/DetalleProducto';
-import PagoExitoso from '../pages/PagoExitoso';
-import PagoFallido from '../pages/PagoFallido';
-import AdminEstadisticas from '../pages/AdminEstadisticas';
+import StoreHome from '../features/home/StoreHome';
+import Catalogo from '../features/catalog/Catalogo';
+import Login from '../features/auth/Login';
+import Register from '../features/auth/Register';
+import Cart from '../features/cart/Cart';
+import MisPedidos from '../features/orders/MisPedidos';
+import MisDirecciones from '../features/addresses/MisDirecciones';
+import DetalleProducto from '../features/catalog/DetalleProducto';
+import PagoExitoso from '../features/payments/PagoExitoso';
+import PagoFallido from '../features/payments/PagoFallido';
+import AdminEstadisticas from '../features/admin/AdminEstadisticas';
 
 export default function AppRouter() {
   return (
