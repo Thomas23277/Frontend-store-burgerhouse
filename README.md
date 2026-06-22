@@ -4,6 +4,7 @@ Frontend público de **Burger House** para clientes. Catálogo con filtros, carr
 
 > Proyecto Integrador — Programación 4 — TUP
 
+Link video presentación: https://youtu.be/d-fTm2NusnA?feature=shared
 ---
 
 ## 📦 Stack Tecnológico
